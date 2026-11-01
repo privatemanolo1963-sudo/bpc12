@@ -1,0 +1,227 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>BPC12</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Libre+Franklin:wght@400;500;600&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap">
+<style>
+/* Layout: una colonna di lettura larga, tabelle a griglia per stanza, foto come miniature che si aprono a schermo intero */
+:root{
+  --bg:#f7f6f2; --paper:#ffffff; --ink:#1f2328; --muted:#5d646d; --rule:#d9d6cd; --accent:#3f5e4a; --accent-soft:#e6ece7; --warn:#8a5a1f; --warn-soft:#f3ead9;
+  --serif:"Source Serif 4", Georgia, "Times New Roman", serif;
+  --sans:"Libre Franklin", "Helvetica Neue", Arial, sans-serif;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){ --bg:#15181b; --paper:#1d2125; --ink:#e8e6e0; --muted:#a3a9b1; --rule:#343a40; --accent:#8fb79c; --accent-soft:#23312a; --warn:#d9a85e; --warn-soft:#332a1c; color-scheme:dark } }
+:root[data-theme="dark"]{ --bg:#15181b; --paper:#1d2125; --ink:#e8e6e0; --muted:#a3a9b1; --rule:#343a40; --accent:#8fb79c; --accent-soft:#23312a; --warn:#d9a85e; --warn-soft:#332a1c; color-scheme:dark }
+
+body{ background:var(--bg); color:var(--ink); font-family:var(--sans); font-size:15px; line-height:1.5; margin:0;
+  padding-left:max(16px, env(safe-area-inset-left,0px)); padding-right:max(16px, env(safe-area-inset-right,0px)); padding-block:0 48px }
+.wrap{ max-width:1080px; margin:0 auto }
+header{ padding-block:40px 20px; border-bottom:1px solid var(--rule) }
+h1{ font-family:var(--serif); font-weight:600; font-size:2.4rem; margin:0 0 4px; letter-spacing:.01em }
+.sub{ color:var(--muted); margin:0 }
+h2{ font-family:var(--serif); font-weight:600; font-size:1.5rem; margin:0 0 12px; text-wrap:balance }
+h3{ font-family:var(--sans); font-weight:600; font-size:.8rem; text-transform:uppercase; letter-spacing:.08em; color:var(--muted); margin:0 0 6px }
+section{ padding-block:28px; border-bottom:1px solid var(--rule) }
+.prose{ max-width:70ch }
+.prose p{ margin:0 0 12px }
+.avviso{ background:var(--warn-soft); border-left:3px solid var(--warn); padding:10px 14px; border-radius:0 6px 6px 0; margin:14px 0 }
+nav.stanze{ display:flex; flex-wrap:wrap; gap:8px; margin-top:10px }
+nav.stanze a{ text-decoration:none; color:var(--accent); background:var(--accent-soft); padding:5px 11px; border-radius:999px; font-size:.9rem; font-weight:500 }
+nav.stanze a:focus-visible, .thumb:focus-visible{ outline:2px solid var(--accent); outline-offset:2px }
+
+.tab{ display:grid; grid-template-columns:52px minmax(160px,1.3fr) minmax(170px,1.1fr) minmax(180px,1.5fr) minmax(140px,1fr); gap:0 16px; align-items:start }
+.tab .hd{ font-size:.75rem; text-transform:uppercase; letter-spacing:.08em; color:var(--muted); padding:0 0 8px; border-bottom:1px solid var(--rule) }
+.tab .cell{ padding:12px 0; border-bottom:1px solid var(--rule); min-width:0 }
+.num{ font-family:var(--serif); font-size:1.25rem; font-weight:600; color:var(--accent); font-variant-numeric:tabular-nums; line-height:1.2 }
+.item{ font-weight:600 }
+.fotos{ display:flex; flex-wrap:wrap; gap:6px }
+.thumb{ display:block; border:0; padding:0; background:none; cursor:zoom-in; border-radius:4px; overflow:hidden; width:92px; height:92px; position:relative }
+.thumb img{ width:100%; height:100%; object-fit:cover; display:block }
+.thumb span{ position:absolute; left:4px; bottom:4px; background:rgba(0,0,0,.6); color:#fff; font-size:.7rem; padding:1px 5px; border-radius:3px; font-variant-numeric:tabular-nums }
+.tutte{ color:var(--muted); font-style:italic }
+.nota{ color:var(--warn); font-weight:500 }
+.vuoto{ color:var(--muted) }
+.lbl{ display:none; font-size:.72rem; text-transform:uppercase; letter-spacing:.08em; color:var(--muted); margin-bottom:2px }
+
+@media (max-width:760px){
+  .tab{ grid-template-columns:1fr; gap:0 }
+  .tab .hd{ display:none }
+  .tab .cell{ border-bottom:0; padding:3px 0 }
+  .tab .cell.first{ padding-top:16px; border-top:1px solid var(--rule) }
+  .tab .cell.last{ padding-bottom:16px }
+  .lbl{ display:block }
+  .num{ display:inline; font-size:1.1rem; margin-right:8px }
+  .item{ display:inline; font-size:1.05rem }
+}
+
+.sheet{ background:var(--paper); border:1px solid var(--rule); border-radius:8px; padding:18px 20px; max-width:70ch }
+.sheet .btn{ display:inline-block; margin-top:8px; padding:9px 16px; border-radius:6px; background:var(--accent); color:#fff; text-decoration:none; font-weight:600 }
+.sheet .btn.off{ background:var(--rule); color:var(--muted); cursor:default }
+
+#lb{ position:fixed; inset:0; background:rgba(10,12,14,.92); display:flex; align-items:center; justify-content:center; z-index:50; padding:env(safe-area-inset-top,0px) env(safe-area-inset-right,0px) env(safe-area-inset-bottom,0px) env(safe-area-inset-left,0px) }
+#lb img{ max-width:96vw; max-height:92vh; object-fit:contain; border-radius:4px }
+#lb .cap{ position:absolute; top:calc(12px + env(safe-area-inset-top,0px)); left:calc(16px + env(safe-area-inset-left,0px)); color:#fff; font-size:.9rem; opacity:.9 }
+#lb .x{ position:absolute; top:calc(8px + env(safe-area-inset-top,0px)); right:calc(12px + env(safe-area-inset-right,0px)); background:none; border:0; color:#fff; font-size:2rem; cursor:pointer; line-height:1; padding:4px 8px }
+#lb .nav{ position:absolute; top:50%; transform:translateY(-50%); background:rgba(255,255,255,.12); border:0; color:#fff; font-size:2rem; width:46px; height:64px; cursor:pointer; border-radius:6px }
+#lb .prev{ left:calc(8px + env(safe-area-inset-left,0px)) } #lb .next{ right:calc(8px + env(safe-area-inset-right,0px)) }
+footer{ color:var(--muted); font-size:.85rem; padding-top:20px }
+@media (prefers-reduced-motion:no-preference){ .thumb img{ transition:transform .15s } .thumb:hover img{ transform:scale(1.04) } }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+<header>
+  <h1>BPC12</h1>
+  <p class="sub">Inventario del sopralluogo, stanza per stanza, con foto e indicazioni per ogni oggetto.</p>
+  <nav class="stanze" id="nav"></nav>
+</header>
+
+<section id="istruzioni">
+  <h2>Istruzioni</h2>
+  <div class="prose">
+    <p>Questo sito raccoglie le informazioni, le immagini e le indicazioni di Sissi e Matteo per ogni oggetto, raccolte e decise in occasione del sopralluogo svolto in BPC12 secondo le disposizioni di Smartnonnella.</p>
+    <p>Lo scopo è razionalizzare il trasloco, ricavando indicazioni chiare da dare al trasportatore. Ogni stanza ha il suo elenco: per ciascun oggetto trovate il numero, il nome, le foto (si ingrandiscono toccandole), le opzioni emerse al sopralluogo ed eventuali note sul contenuto. Chi è interessato a un oggetto non ancora assegnato lo segnala nel foglio collegato in fondo alla pagina, mettendo una X nella propria colonna accanto al numero dell'oggetto.</p>
+    <div class="avviso">Libri: la decisione già presa da Sissi e Matteo è di donarli, previa cernita di tutti, con o senza le librerie.</div>
+    <p>Sulla base del preventivo del trasportatore prescelto, le spese di trasporto verso Parma, Bologna e Milano/Cantù saranno divise tra Matteo e Sissi, che poi eventualmente regoleranno i conti con i propri figli.</p>
+    <p>Le decisioni sui soprammobili e sui contenuti dei vari contenitori (dalle scatole agli armadi) saranno prese in un secondo momento, con modalità da definire tra Sissi e Matteo.</p>
+    <p>La casa è già in vendita e Matteo ha ricevuto le prime offerte: tutto dovrà quindi svolgersi in tempi da definire, ma rapidi. La situazione complessiva comporta che il "modello La Salle" non è applicabile.</p>
+  </div>
+</section>
+
+<div id="stanze"></div>
+
+<section id="foglio">
+  <h2>Manifestare interesse</h2>
+  <div class="sheet">
+    <p>Gli oggetti non ancora assegnati si prenotano nel foglio Google collegato: ogni riga riporta stanza, numero e nome dell'oggetto come in questa pagina, e ognuno mette una X nella propria colonna. Le foto restano qui, con lo stesso numero.</p>
+    <span class="btn off" id="sheetbtn">Foglio in preparazione</span>
+  </div>
+</section>
+
+<footer>Pagina a cura di Matteo. Le modifiche si chiedono a lui.</footer>
+</div>
+
+<div id="lb" hidden>
+  <button class="x" id="lbx" aria-label="Chiudi">×</button>
+  <button class="nav prev" id="lbp" aria-label="Foto precedente">‹</button>
+  <img id="lbimg" alt="">
+  <button class="nav next" id="lbn" aria-label="Foto successiva">›</button>
+  <div class="cap" id="lbcap"></div>
+</div>
+
+<script>
+const ROOMS = [
+ {id:"camera-matteo", nome:"Camera Matteo", nfoto:11, items:[
+  ["Frau","Pilli",[1],""],
+  ["Scarpiera","Luda",[2],""],
+  ["Scatole varie","Verificare contenuto",[3,5],"Verificare contenuto"],
+  ["Libreria bianca legno","Buttare o vendere all'acquirente",[4],""],
+  ["Argenteria","Sissi (riunire a quella in soggiorno e cucina)",[5],""],
+  ["Libreria Lips vago","Da decidere",[6],""],
+  ["Seggiolina papà","Da decidere",[7],""],
+  ["Armadio","Buttare o vendere all'acquirente",[8],"Verificare contenuto"],
+  ["Comodini","Buttare",[9],"Verificare contenuto"],
+  ["Letto","Buttare con i materassi",[10],""],
+  ["Quadri","Da decidere",[10,11],""],
+  ["Soprammobili","Da decidere","tutte","Si decide in un secondo momento"]
+ ]},
+ {id:"camera-mamma", nome:"Camera Mamma", nfoto:11, items:[
+  ["Librerie","Sissi",[1],""],
+  ["Comodini","Da decidere",[2],""],
+  ["Sedia oro","Da decidere",[3],""],
+  ["Testiera foto Cusna","Da decidere",[4],""],
+  ["Applique","Da decidere",[2,5],""],
+  ["Foto varie","Da decidere",[6,7],""],
+  ["Piantana","Da decidere",[8],""],
+  ["Armadio","Da decidere",[9],"Verificare contenuto"],
+  ["Scatole varie","Verificare contenuto",[10],"Verificare contenuto"],
+  ["Specchio","Da decidere",[11],""],
+  ["Soprammobili","Da decidere","tutte","Si decide in un secondo momento"]
+ ]},
+ {id:"corridoio", nome:"Corridoio", folder:"corridoio-bagno", nfoto:7, items:[
+  ["Specchio","Destinare? Vendere all'acquirente?",[1],""],
+  ["Foto","Da destinare",[2],""],
+  ["Applique a parete triangolare","Destinare? Vendere a parte o all'acquirente?",[3],""]
+ ]},
+ {id:"bagno", nome:"Bagno", folder:"corridoio-bagno", nfoto:7, items:[
+  ["Pensili + specchio","Buttare o vendere all'acquirente",[4],""],
+  ["Pensili e doccia","Buttare o vendere all'acquirente",[5,6],""],
+  ["Soppalco","Da svuotare e analizzare",[7],""]
+ ]},
+ {id:"soggiorno", nome:"Soggiorno", nfoto:19, items:[
+  ["Libreria","Donare? Destinare? Vendere a parte o all'acquirente?",[1],"Verificare contenuto"],
+  ["Angoliera","Destinare? Vendere a parte o all'acquirente?",[2],""],
+  ["Tavolo + 6 sedie","Destinare? Vendere a parte o all'acquirente?",[3],""],
+  ["Lampadario","Destinare? Vendere a parte o all'acquirente?",[4],""],
+  ["Quadri","Destinare? Vendere a parte o all'acquirente?",[5,6,19],""],
+  ["Foto","Da destinare; quelle non scelte vanno a Matteo",[7],""],
+  ["Poltrone","Destinare? Vendere a parte o all'acquirente?",[8],""],
+  ["Libreria girevole","Destinare? Vendere a parte o all'acquirente?",[9],""],
+  ["Credenza","Destinare? Vendere a parte o all'acquirente?",[10],"Verificare contenuto"],
+  ["Divano Coronado B&B","Destinare? Vendere a parte o all'acquirente?",[11],""],
+  ["Cassapanca ampezzana","Destinare? Vendere a parte o all'acquirente?",[12],"Verificare contenuto"],
+  ["Abat-jour","Destinare? Buttare?",[13],""],
+  ["Tavolino pieghevole","Destinare?",[14],""],
+  ["Tavolino legno rettangolare","Destinare? Vendere a parte o all'acquirente?",[15],""],
+  ["Ribaltina e seggiola","Destinare? Vendere a parte o all'acquirente?",[16],"Verificare contenuto"],
+  ["Leggio con atlante","Matteo",[17],""],
+  ["Armadio di Cortina","Matteo, con le foto",[18],"Verificare altro contenuto"],
+  ["Soprammobili","Da decidere","tutte","Si decide in un secondo momento"]
+ ]},
+ {id:"cucina", nome:"Cucina e Pianerottolo", nfoto:7, items:[
+  ["Frigorifero","Buttare o vendere all'acquirente",[1],""],
+  ["Pensili e basi","Destinare? Altrimenti buttare o vendere all'acquirente",[2,3,4],"Verificare contenuto"],
+  ["Lavastoviglie, cucina + forno","Buttare o vendere all'acquirente",[5],""],
+  ["Lavatrice","Buttare o vendere all'acquirente",[6],""],
+  ["Armadietto e saracinesca","Buttare o vendere all'acquirente",[3],"Verificare contenuto"],
+  ["Cassapanca esterna","Buttare o vendere all'acquirente",[7],"Verificare contenuto"],
+  ["Soprammobili","Da decidere","tutte","Si decide in un secondo momento"]
+ ]},
+ {id:"cantina", nome:"Cantina", nfoto:0, items:[], nota:"Da ispezionare."}
+];
+
+const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const nav = document.getElementById("nav");
+const cont = document.getElementById("stanze");
+let gallery = [], gi = 0;
+
+ROOMS.forEach(r => {
+  const folder = r.folder || r.id;
+  nav.insertAdjacentHTML("beforeend", `<a href="#${r.id}">${esc(r.nome)}</a>`);
+  let h = `<section id="${r.id}"><h2>${esc(r.nome)}</h2>`;
+  if (!r.items.length) { h += `<p class="vuoto">${esc(r.nota||"")}</p></section>`; cont.insertAdjacentHTML("beforeend", h); return; }
+  h += `<div class="tab"><div class="hd">N.</div><div class="hd">Oggetto</div><div class="hd">Foto</div><div class="hd">Opzioni</div><div class="hd">Nota sul contenuto</div>`;
+  r.items.forEach((it, i) => {
+    const [nome, opz, foto, nota] = it; const n = i + 1;
+    let f;
+    if (foto === "tutte") f = `<span class="tutte">Tutte le foto della stanza</span>`;
+    else f = `<div class="fotos">` + foto.map(k => `<button class="thumb" data-room="${r.id}" data-folder="${folder}" data-n="${k}" aria-label="Foto ${k}, ${esc(nome)}"><img src="foto/${folder}/${k}t.jpg" alt="" loading="lazy"><span>${k}</span></button>`).join("") + `</div>`;
+    h += `<div class="cell first"><div class="num">${n}</div></div>
+          <div class="cell"><div class="item">${esc(nome)}</div></div>
+          <div class="cell"><div class="lbl">Foto</div>${f}</div>
+          <div class="cell"><div class="lbl">Opzioni</div>${esc(opz)}</div>
+          <div class="cell last"><div class="lbl">Nota sul contenuto</div>${nota ? `<span class="nota">${esc(nota)}</span>` : `<span class="vuoto">–</span>`}</div>`;
+  });
+  h += `</div></section>`;
+  cont.insertAdjacentHTML("beforeend", h);
+});
+
+const lb = document.getElementById("lb"), lbimg = document.getElementById("lbimg"), lbcap = document.getElementById("lbcap");
+function show(i){ gi = (i + gallery.length) % gallery.length; const g = gallery[gi]; lbimg.src = `foto/${g.folder}/${g.n}.jpg`; lbcap.textContent = `${g.room} · foto ${g.n}`; }
+cont.addEventListener("click", e => {
+  const b = e.target.closest(".thumb"); if (!b) return;
+  const room = ROOMS.find(r => r.id === b.dataset.room);
+  gallery = Array.from({length: room.nfoto}, (_, k) => ({folder: b.dataset.folder, n: k + 1, room: room.nome}));
+  show(Number(b.dataset.n) - 1); lb.hidden = false;
+});
+document.getElementById("lbx").onclick = () => lb.hidden = true;
+document.getElementById("lbp").onclick = e => { e.stopPropagation(); show(gi - 1); };
+document.getElementById("lbn").onclick = e => { e.stopPropagation(); show(gi + 1); };
+lb.addEventListener("click", e => { if (e.target === lb || e.target === lbimg) lb.hidden = true; });
+document.addEventListener("keydown", e => { if (lb.hidden) return; if (e.key === "Escape") lb.hidden = true; if (e.key === "ArrowLeft") show(gi - 1); if (e.key === "ArrowRight") show(gi + 1); });
+</script>
+</body>
+</html>
