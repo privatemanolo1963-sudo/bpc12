@@ -31,9 +31,10 @@ nav.stanze{ display:flex; flex-wrap:wrap; gap:8px; margin-top:10px }
 nav.stanze a{ text-decoration:none; color:var(--accent); background:var(--accent-soft); padding:5px 11px; border-radius:999px; font-size:.9rem; font-weight:500 }
 nav.stanze a:focus-visible, .thumb:focus-visible{ outline:2px solid var(--accent); outline-offset:2px }
 
-.tab{ display:grid; grid-template-columns:52px minmax(160px,1.3fr) minmax(170px,1.1fr) minmax(180px,1.5fr) minmax(140px,1fr); gap:0 16px; align-items:start }
+.tab .hdr, .tab .row{ display:grid; grid-template-columns:52px minmax(160px,1.3fr) minmax(170px,1.1fr) minmax(180px,1.5fr) minmax(140px,1fr); gap:0 16px; align-items:start }
+.tab .row{ border-bottom:1px solid var(--rule); padding:12px 0 }
 .tab .hd{ font-size:.75rem; text-transform:uppercase; letter-spacing:.08em; color:var(--muted); padding:0 0 8px; border-bottom:1px solid var(--rule) }
-.tab .cell{ padding:12px 0; border-bottom:1px solid var(--rule); min-width:0 }
+.tab .cell{ min-width:0 }
 .num{ font-family:var(--serif); font-size:1.25rem; font-weight:600; color:var(--accent); font-variant-numeric:tabular-nums; line-height:1.2 }
 .item{ font-weight:600 }
 .fotos{ display:flex; flex-wrap:wrap; gap:6px }
@@ -46,11 +47,9 @@ nav.stanze a:focus-visible, .thumb:focus-visible{ outline:2px solid var(--accent
 .lbl{ display:none; font-size:.72rem; text-transform:uppercase; letter-spacing:.08em; color:var(--muted); margin-bottom:2px }
 
 @media (max-width:760px){
-  .tab{ grid-template-columns:1fr; gap:0 }
-  .tab .hd{ display:none }
-  .tab .cell{ border-bottom:0; padding:3px 0 }
-  .tab .cell.first{ padding-top:16px; border-top:1px solid var(--rule) }
-  .tab .cell.last{ padding-bottom:16px }
+  .tab .row{ grid-template-columns:1fr; gap:0; padding:16px 0 }
+  .tab .hdr{ display:none }
+  .tab .cell{ padding:3px 0 }
   .lbl{ display:block }
   .num{ display:inline; font-size:1.1rem; margin-right:8px }
   .item{ display:inline; font-size:1.05rem }
@@ -194,17 +193,17 @@ ROOMS.forEach(r => {
   nav.insertAdjacentHTML("beforeend", `<a href="#${r.id}">${esc(r.nome)}</a>`);
   let h = `<section id="${r.id}"><h2>${esc(r.nome)}</h2>`;
   if (!r.items.length) { h += `<p class="vuoto">${esc(r.nota||"")}</p></section>`; cont.insertAdjacentHTML("beforeend", h); return; }
-  h += `<div class="tab"><div class="hd">N.</div><div class="hd">Oggetto</div><div class="hd">Foto</div><div class="hd">Opzioni</div><div class="hd">Nota sul contenuto</div>`;
+  h += `<div class="tab"><div class="hdr"><div class="hd">N.</div><div class="hd">Oggetto</div><div class="hd">Foto</div><div class="hd">Opzioni</div><div class="hd">Nota sul contenuto</div></div>`;
   r.items.forEach((it, i) => {
     const [nome, opz, foto, nota] = it; const n = i + 1;
     let f;
     if (foto === "tutte") f = `<span class="tutte">Tutte le foto della stanza</span>`;
     else f = `<div class="fotos">` + foto.map(k => `<button class="thumb" data-room="${r.id}" data-folder="${folder}" data-n="${k}" aria-label="Foto ${k}, ${esc(nome)}"><img src="foto/${folder}/${k}t.jpg" alt="" loading="lazy"><span>${k}</span></button>`).join("") + `</div>`;
-    h += `<div class="cell first"><div class="num">${n}</div></div>
+    h += `<div class="row"><div class="cell first"><div class="num">${n}</div></div>
           <div class="cell"><div class="item">${esc(nome)}</div></div>
           <div class="cell"><div class="lbl">Foto</div>${f}</div>
           <div class="cell"><div class="lbl">Opzioni</div>${esc(opz)}</div>
-          <div class="cell last"><div class="lbl">Nota sul contenuto</div>${nota ? `<span class="nota">${esc(nota)}</span>` : `<span class="vuoto">–</span>`}</div>`;
+          <div class="cell last"><div class="lbl">Nota sul contenuto</div>${nota ? `<span class="nota">${esc(nota)}</span>` : `<span class="vuoto">–</span>`}</div></div>`;
   });
   h += `</div></section>`;
   cont.insertAdjacentHTML("beforeend", h);
